@@ -5,66 +5,110 @@
     <div class="row mb-4">
         <div class="col">
             <h2>Welcome, {{ current_user.name }}!</h2>
+            <p><strong>Email:</strong> {{ current_user.email }}</p>
+            <p><strong>Address:</strong> {{ current_user.address }}</p>
+            <p><strong>Emergency Contact:</strong> {{ current_user.emergency_contact }}</p>
+
+            <form action="{{ url_for('update_profile') }}" method="GET" class="mb-3">
+                <button type="submit" class="btn btn-primary">Update Profile</button>
+            </form>
+            
+            <form action="{{ url_for('my_reviews') }}" method="GET" class="mb-2">
+                <button type="submit" class="btn btn-info">My Reviews</button>
+            </form>
+            
+            
+            {% if current_user.is_authenticated and current_user.is_admin %}
+            <form action="{{ url_for('view_reports') }}" method="GET" class="mb-3">
+                <button type="submit" class="btn btn-danger">Reports</button>
+            </form>
+            
+              
+            {% endif %}
         </div>
         <div class="col text-end">
             <a href="{{ url_for('create_group') }}" class="btn btn-primary me-2">Create New Group</a>
             <a href="{{ url_for('create_routine') }}" class="btn btn-secondary">Add Routine</a>
+              
+            <!-- Emergency SOS Button -->
+            <form action="{{ url_for('send_sos') }}" method="POST" class="mt-3" onsubmit="return confirm('Are you sure you want to send an SOS alert?');">
+                <button type="submit" class="btn btn-danger emergency-button">
+                    🚨 Emergency SOS
+                </button>
+            </form>
         </div>
+        
     </div>
 
     <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
+        <!-- Available Travel Groups -->
+        <div class="col-md-8 mb-4">
+            <div class="card h-100">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>Available Travel Groups</h3>
-                </div>
+                    <div class="search-container" style="display: inline-block; margin-left: 20px;">
+                        <input type="text" id="search-bar" placeholder="Search by group or destination..." onkeyup="searchFunction()" style="padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                    </div>
+                    
+                </div>                    
                 <div class="card-body">
                     {% if groups %}
-                        <div class="list-group">
-                            {% for group in groups %}
-                                <div class="list-group-item">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h5 class="mb-1">{{ group.name }}</h5>
-                                            <p class="mb-1">Destination: {{ group.destination }}</p>
-                                            <small>Departure: {{ group.departure_time.strftime('%Y-%m-%d %H:%M') }}</small>
-                                        </div>
-                                        <div>
-                                            {% if current_user not in group.members %}
-                                                <a href="{{ url_for('join_group', group_id=group.id) }}" 
-                                                   class="btn btn-success btn-sm">Join Group</a>
-                                            {% else %}
-                                                <a href="{{ url_for('group_detail', group_id=group.id) }}" 
-                                                   class="btn btn-primary btn-sm">View Details</a>
-                                            {% endif %}
-                                        </div>
+                        {% for group in groups %}
+                            <div class="border rounded p-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                    <div>
+                                        <h5 class="mb-1">Group Name: {{ group.name }}</h5>
+                                        <p class="mb-1">Destination: {{ group.destination }}</p>
+                                        <small>Departure: {{ group.departure_time.strftime('%Y-%m-%d %I:%M %p') }}</small>
+                                    </div>
+                                    <div class="text-end mt-2 mt-md-0">
+                                        {% if current_user not in group.members %}
+                                            <a href="{{ url_for('join_group', group_id=group.id) }}" class="btn btn-success btn-sm me-1">Join Group</a>
+                                        {% else %}
+                                            <a href="{{ url_for('group_detail', group_id=group.id) }}" class="btn btn-primary btn-sm me-1">View Details</a>
+                                        {% endif %}
+                                        {% if group.created_by == current_user.id %}
+                                            <form action="{{ url_for('delete_group', group_id=group.id) }}" method="POST" class="d-inline"
+                                                  onsubmit="return confirm('Are you sure you want to delete this group?');">
+                                                <button type="submit" class="btn btn-danger btn-sm mt-1 mt-md-0">Delete Group</button>
+                                            </form>
+                                        {% endif %}
                                     </div>
                                 </div>
-                            {% endfor %}
-                        </div>
+                            </div>
+                        {% endfor %}
                     {% else %}
                         <p class="text-center">No travel groups available at the moment.</p>
                     {% endif %}
                 </div>
             </div>
         </div>
-
-        <div class="col-md-4">
-            <div class="card">
+    
+        <!-- My Groups -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
                 <div class="card-header">
                     <h3>My Groups</h3>
                 </div>
                 <div class="card-body">
                     {% if current_user.groups %}
-                        <div class="list-group">
-                            {% for group in current_user.groups %}
-                                <a href="{{ url_for('group_detail', group_id=group.id) }}" 
-                                   class="list-group-item list-group-item-action">
-                                    <h5 class="mb-1">{{ group.name }}</h5>
-                                    <small>{{ group.departure_time.strftime('%Y-%m-%d %H:%M') }}</small>
-                                </a>
-                            {% endfor %}
-                        </div>
+                        {% for group in current_user.groups %}
+                            <div class="border rounded p-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                    <div>
+                                        <h5 class="mb-1">{{ group.name }}</h5>
+                                        <small>{{ group.departure_time.strftime('%Y-%m-%d %I:%M %p') }}</small>
+                                    </div>
+                                    <div class="text-end mt-2 mt-md-0">
+                                        <a href="{{ url_for('group_detail', group_id=group.id) }}" class="btn btn-primary btn-sm me-1">Details</a>
+                                        <form method="POST" action="{{ url_for('leave_group', group_id=group.id) }}" class="d-inline"
+                                              onsubmit="return confirm('Are you sure you want to leave this group?');">
+                                            <button type="submit" class="btn btn-danger btn-sm">Leave</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
                     {% else %}
                         <p class="text-center">You haven't joined any groups yet.</p>
                     {% endif %}
@@ -72,6 +116,42 @@
             </div>
         </div>
     </div>
+    
+        
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            {% if suggested_groups %}
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5>Suggested Groups (Matched with Your Address)</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for group in suggested_groups %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                <div>
+                                    <strong>Group Name:</strong> {{ group.name }}<br>
+                                    <strong>Destination:</strong> {{ group.destination }}<br>
+                                    <strong>Departure Time:</strong> {{ group.departure_time.strftime('%I:%M %p') }}
+                                </div>
+                                <div class="mt-2 mt-md-0">
+                                    {% if current_user not in group.members %}
+                                        <a href="{{ url_for('join_group', group_id=group.id) }}" class="btn btn-success btn-sm">Join Group</a>
+                                    {% else %}
+                                        <a href="{{ url_for('group_detail', group_id=group.id) }}" class="btn btn-secondary btn-sm">View Details</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    
 
     <div class="row mt-4">
         <div class="col-md-8">
@@ -80,22 +160,48 @@
                     <h3>My Routine</h3>
                 </div>
                 <div class="card-body">
-                    {% if current_user.routine %}
-                        <ul class="list-group">
-                            {% for item in current_user.routine %}
-                                <li class="list-group-item">
-                                    <h5 class="mb-1">{{ item.title }}</h5>
-                                    <p class="mb-1">Time: {{ item.time }}</p>
-                                    <p>{{ item.details }}</p>
-                                </li>
-                            {% endfor %}
-                        </ul>
+                    {% if routines %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Day</th>
+                                        <th>Course</th>
+                                        <th>Start Time</th>
+                                        <th>End Time</th>
+                                        <th>Room No</th>
+                                        <th>Action</th> <!-- New column for Delete -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for routine in routines %}
+                                        <tr>
+                                            <td>{{ routine.day }}</td>
+                                            <td>{{ routine.course_name }}</td>
+                                            <td>{{ routine.start_time.strftime('%H:%M') }}</td>
+                                            <td>{{ routine.end_time.strftime('%H:%M') }}</td>
+                                            <td>{{ routine.room_no }}</td>
+                                            <td>
+                                                <form action="{{ url_for('delete_routine', routine_id=routine.id) }}" method="POST" style="display:inline;">
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this routine?');">
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     {% else %}
                         <p class="text-center">You haven't added any routine yet. <a href="{{ url_for('create_routine') }}">Add your routine now!</a></p>
                     {% endif %}
                 </div>
             </div>
         </div>
-    </div>
+    </div>    
 </div>
+
+
+
 {% endblock %}

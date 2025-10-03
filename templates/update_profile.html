@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Update Profile</h2>
+
+    <!-- Success Message -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <!-- Name Field -->
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}" required>
+        </div>
+
+        <!-- Email Field -->
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+        </div>
+
+        <!-- Address Field (Location Dropdown) -->
+        <div class="mb-3">
+            <label for="address" class="form-label">Select Area</label>
+            <select name="address" id="address" class="form-control" required>
+                <option value="">-- Select Area --</option>
+                <option value="Dhanmondi" {% if user.address == 'Dhanmondi' %}selected{% endif %}>Dhanmondi</option>
+                <option value="Gulshan" {% if user.address == 'Gulshan' %}selected{% endif %}>Gulshan</option>
+                <option value="Banani" {% if user.address == 'Banani' %}selected{% endif %}>Banani</option>
+                <option value="Uttara" {% if user.address == 'Uttara' %}selected{% endif %}>Uttara</option>
+                <option value="Mirpur" {% if user.address == 'Mirpur' %}selected{% endif %}>Mirpur</option>
+                <option value="Badda" {% if user.address == 'Badda' %}selected{% endif %}>Badda</option>
+                <option value="Mohammadpur" {% if user.address == 'Mohammadpur' %}selected{% endif %}>Mohammadpur</option>
+                <option value="Bashundhara" {% if user.address == 'Bashundhara' %}selected{% endif %}>Bashundhara</option>
+                <option value="Tejgaon" {% if user.address == 'Tejgaon' %}selected{% endif %}>Tejgaon</option>
+                <option value="Banasree" {% if user.address == 'Banasree' %}selected{% endif %}>Banasree</option>
+                <option value="Farmgate" {% if user.address == 'Farmgate' %}selected{% endif %}>Farmgate</option>
+                <option value="Motijheel" {% if user.address == 'Motijheel' %}selected{% endif %}>Motijheel</option>
+                <option value="Shyamoli" {% if user.address == 'Shyamoli' %}selected{% endif %}>Shyamoli</option>
+                <option value="Khilgaon" {% if user.address == 'Khilgaon' %}selected{% endif %}>Khilgaon</option>
+            </select>
+        </div>
+
+        <!-- Emergency Contact Field -->
+        <div class="mb-3">
+            <label for="emergency_contact" class="form-label">Emergency Contact</label>
+            <input type="text" class="form-control" id="emergency_contact" name="emergency_contact" value="{{ user.emergency_contact }}" required>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">Update Profile</button>
+    </form>
+</div>
+{% endblock %}

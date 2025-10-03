@@ -1,48 +1,175 @@
 /* General Styles */
 body {
     background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Home Background */
+.home-background {
+    background-image: url('../images/home-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    color: #2c3e50;
+}
+
+/* Update heading colors in home background */
+.home-background h1,
+.home-background h2,
+.home-background h3 {
+    color: #1a1a1a;
+}
+
+/* Update paragraph text in home background */
+.home-background p {
+    color: #2c3e50;
+}
+
+/* Navbar Styling */
+.navbar {
+    background-color: rgba(33, 37, 41, 0.95) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 600;
+    color: #ffffff !important;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #ffffff !important;
+}
+
+/* Card Styles */
+.card {
+    background-color: #ffffff;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.card-body {
+    color: #34495e;
+}
+
+/* Home Page Specific Card Styles */
+.home-background .card {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+}
+
+.home-background .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Button Styling */
+.btn-primary {
+    background-color: #3498db;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+}
+
+.btn-secondary {
+    background-color: #95a5a6;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #7f8c8d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(149, 165, 166, 0.2);
+}
+
+/* Alert Styling */
+.alert {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Chat Messages */
 .chat-messages {
-    background-color: #fff;
+    background-color: #ffffff;
+    border-radius: 15px;
+    padding: 15px;
 }
 
 .message-content {
     display: inline-block;
     max-width: 80%;
     word-wrap: break-word;
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 10px;
+    margin: 5px 0;
 }
 
 /* Dark Mode */
 body.dark-mode {
-    background-color: #343a40;
-    color: #fff;
+    background-color: #1a1a1a;
+    color: #ffffff;
 }
 
 .dark-mode .card {
-    background-color: #454d55;
-    border-color: #6c757d;
+    background-color: rgba(45, 45, 45, 0.95);
+    border-color: #4a4a4a;
 }
 
 .dark-mode .card-header {
-    background-color: #343a40;
-    border-bottom-color: #6c757d;
+    background-color: rgba(33, 33, 33, 0.95);
+    border-bottom-color: #4a4a4a;
 }
 
 .dark-mode .list-group-item {
-    background-color: #454d55;
-    border-color: #6c757d;
-    color: #fff;
+    background-color: rgba(45, 45, 45, 0.95);
+    border-color: #4a4a4a;
+    color: #ffffff;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
-        padding: 10px;
+        padding: 15px;
     }
     
     .card {
         margin-bottom: 20px;
+    }
+    
+    .navbar {
+        padding: 10px 15px;
     }
 }

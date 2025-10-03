@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">🚩 Reported Group Members</h2>
+
+  {% if reports %}
+    <table class="table table-bordered table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Reporter</th>
+          <th>Reported User</th>
+          <th>Group</th>
+          <th>Reason</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for report in reports %}
+          <tr>
+            <td>{{ report.reporter.name if report.reporter else 'Unknown' }}</td>
+            <td>{{ report.reported.name }}</td>
+            <td>{{ report.group.name }}</td>
+            <td>{{ report.reason }}</td>
+            <td>{{ report.local_time.strftime('%Y-%m-%d %I:%M %p') }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-info">
+      No reports submitted yet.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
