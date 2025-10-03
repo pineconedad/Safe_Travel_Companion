@@ -1,33 +1,174 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h2 class="text-center">Create Travel Group</h2>
+<div class="container mt-4">
+    <h2>Create New Group</h2>
+    <form method="POST" class="mt-4">
+        <div class="form-group">
+            <label for="name">Group Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label>Journey Type</label>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="journeyType" id="fromUniversity" value="from" checked>
+                <label class="form-check-label" for="fromUniversity">
+                    From University
+                </label>
             </div>
-            <div class="card-body">
-                <form method="POST">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Group Name</label>
-                        <input type="text" class="form-control" id="name" name="name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="destination" class="form-label">Destination</label>
-                        <input type="text" class="form-control" id="destination" name="destination" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="departure_time" class="form-label">Departure Time</label>
-                        <input type="datetime-local" class="form-control" id="departure_time" name="departure_time" required>
-                    </div>
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary">Create Group</button>
-                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
-                    </div>
-                </form>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="journeyType" id="toUniversity" value="to">
+                <label class="form-check-label" for="toUniversity">
+                    To University
+                </label>
             </div>
         </div>
-    </div>
+        
+        <div class="form-group" id="destinationGroup">
+            <label for="destination">Destination</label>
+            <input type="text" class="form-control" id="destination" name="destination" required>
+            <input type="hidden" id="latitude" name="latitude">
+            <input type="hidden" id="longitude" name="longitude">
+        </div>
+
+        <div class="form-group">
+            <label for="departure_time">Departure Time</label>
+            <input type="datetime-local" class="form-control" id="departure_time" name="departure_time" required>
+        </div>
+
+        <div class="form-group">
+            <label>Select Destination on Map</label>
+            <div id="map" style="height: 400px; width: 100%; margin-bottom: 20px;"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create Group</button>
+    </form>
 </div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places"></script>
+<script>
+let map;
+let marker;
+let geocoder;
+let autocomplete;
+const BRAC_UNIVERSITY = {
+    lat: 23.7727553601588,
+    lng: 90.42535886979451,
+    address: "BRAC University New, Kha 224 Pragati Sarani, Merul Badda , Dhaka 1212, Bangladesh "
+};
+
+function initMap() {
+    // Initialize the map
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 23.8103, lng: 90.4125 }, // Default to Dhaka
+        zoom: 13
+    });
+
+    // Initialize the geocoder
+    geocoder = new google.maps.Geocoder();
+
+    // Initialize the autocomplete
+    autocomplete = new google.maps.places.Autocomplete(
+        document.getElementById('destination'),
+        { types: ['geocode'] }
+    );
+
+    // Add click listener to map
+    map.addListener('click', function(e) {
+        if (document.getElementById('fromUniversity').checked) {
+            placeMarker(e.latLng);
+        }
+    });
+
+    // Add listener to autocomplete
+    autocomplete.addListener('place_changed', function() {
+        if (document.getElementById('fromUniversity').checked) {
+            const place = autocomplete.getPlace();
+            if (place.geometry) {
+                map.setCenter(place.geometry.location);
+                placeMarker(place.geometry.location);
+            }
+        }
+    });
+
+    // Add listeners to radio buttons
+    document.getElementById('fromUniversity').addEventListener('change', handleJourneyTypeChange);
+    document.getElementById('toUniversity').addEventListener('change', handleJourneyTypeChange);
+}
+
+function handleJourneyTypeChange() {
+    const destinationGroup = document.getElementById('destinationGroup');
+    const destinationInput = document.getElementById('destination');
+    const isToUniversity = document.getElementById('toUniversity').checked;
+
+    if (isToUniversity) {
+        // Set BRAC University as destination
+        destinationInput.value = BRAC_UNIVERSITY.address;
+        destinationInput.readOnly = true;
+        document.getElementById('latitude').value = BRAC_UNIVERSITY.lat;
+        document.getElementById('longitude').value = BRAC_UNIVERSITY.lng;
+        
+        // Center map on BRAC University
+        map.setCenter({ lat: BRAC_UNIVERSITY.lat, lng: BRAC_UNIVERSITY.lng });
+        placeMarker({ lat: BRAC_UNIVERSITY.lat, lng: BRAC_UNIVERSITY.lng });
+    } else {
+        // Reset to normal destination input
+        destinationInput.value = '';
+        destinationInput.readOnly = false;
+        document.getElementById('latitude').value = '';
+        document.getElementById('longitude').value = '';
+        if (marker) {
+            marker.setMap(null);
+            marker = null;
+        }
+    }
+}
+
+function placeMarker(location) {
+    if (marker) {
+        marker.setPosition(location);
+    } else {
+        marker = new google.maps.Marker({
+            position: location,
+            map: map
+        });
+    }
+
+    // Update hidden input fields
+    document.getElementById('latitude').value = location.lat();
+    document.getElementById('longitude').value = location.lng();
+
+    // Get address from coordinates and simplify it
+    geocoder.geocode({ 'location': location }, function(results, status) {
+        if (status === 'OK' && results[0]) {
+            // Get the address components
+            const addressComponents = results[0].address_components;
+            let simplifiedAddress = '';
+            
+            // Extract the main parts of the address
+            for (let component of addressComponents) {
+                if (component.types.includes('route') || 
+                    component.types.includes('sublocality') || 
+                    component.types.includes('locality')) {
+                    simplifiedAddress += component.long_name + ', ';
+                }
+            }
+            
+            // Remove trailing comma and space
+            simplifiedAddress = simplifiedAddress.replace(/,\s*$/, '');
+            
+            // If we couldn't get a simplified address, use the first part of the formatted address
+            if (!simplifiedAddress) {
+                simplifiedAddress = results[0].formatted_address.split(',')[0];
+            }
+            
+            document.getElementById('destination').value = simplifiedAddress;
+        }
+    });
+}
+
+// Initialize the map when the page loads
+window.onload = initMap;
+</script>
 {% endblock %}

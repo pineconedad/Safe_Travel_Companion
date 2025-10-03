@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">My Reviews</h2>
+    {% if reviews %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Reviewed By</th>
+                    <th>Rating ⭐</th>
+                    <th>Comment</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in reviews %}
+                    <tr>
+                        <td>{{ review.reviewer.name }}</td>
+                        <td>{{ review.rating }} / 5</td>
+                        <td>{{ review.comment }}</td>
+                        <td>{{ review.local_time.strftime('%Y-%m-%d %I:%M %p') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>You have not received any reviews yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
